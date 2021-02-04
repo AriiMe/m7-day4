@@ -14,6 +14,32 @@ import JobList from "./JobList";
 import { connect } from "react-redux";
 
 const mapStateToProps = (state) => state;
+const fetchJobs = async (dispatch) => {
+  try {
+    let response = await fetch(
+      `https://yabba-dabba-duls-cors-anywhere.herokuapp.com/https://jobs.github.com/positions.json?description=${"Software Engineer"}&location=${"Berlin"}`
+    );
+    let jobs = await response.json();
+    return dispatch({ type: "POPULATE_JOB_LIST", payload: jobs });
+  } catch (error) {
+    console.log(error);
+    return dispatch({ type: "SET_ERROR_CODE", payload: 404 });
+  }
+};
+const mapDispatchToProps = (dispatch) => ({
+  fetchJobs: async (state) => {
+    try {
+      let response = await fetch(
+        `https://yabba-dabba-duls-cors-anywhere.herokuapp.com/https://jobs.github.com/positions.json?description=${state.job}&location=${state.location}`
+      );
+      let jobs = await response.json();
+      return dispatch({ type: "POPULATE_JOB_LIST", payload: jobs });
+    } catch (error) {
+      console.log(error);
+      return dispatch({ type: "SET_ERROR_CODE", payload: 404 });
+    }
+  },
+});
 
 class Search extends Component {
   state = {
@@ -25,21 +51,21 @@ class Search extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
     const form = e.currentTarget;
-    this.fetchJobs();
+    this.props.fetchJobs(this.state);
   };
 
-  fetchJobs = async () => {
-    try {
-      let response = await fetch(
-        `https://yabba-dabba-duls-cors-anywhere.herokuapp.com/https://jobs.github.com/positions.json?description=${this.state.job}&location=${this.state.location}`
-      );
-      let jobs = await response.json();
-      this.setState({ jobs: jobs });
-      console.log(jobs);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // fetchJobs = async () => {
+  //   try {
+  //     let response = await fetch(
+  //       `https://yabba-dabba-duls-cors-anywhere.herokuapp.com/https://jobs.github.com/positions.json?description=${this.state.job}&location=${this.state.location}`
+  //     );
+  //     let jobs = await response.json();
+  //     this.setState({ jobs: jobs });
+  //     console.log(jobs);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   render() {
     return (
@@ -90,16 +116,10 @@ class Search extends Component {
         </Container>
         <Container className="mt-5 d-flex justify-content-center">
           <Row>
-            {this.state.jobs.length > 0 &&
-              this.state.jobs.map((job, index) => (
+            {this.props.jobList.length > 0 &&
+              this.props.jobList.map((job, index) => (
                 <Col xs={6}>
-                  <JobList
-                    style={{}}
-                    job={job}
-                    getJob={this.props.getJob}
-                    top={index}
-                    key={index}
-                  />
+                  <JobList style={{}} job={job} top={index} key={index} />
                 </Col>
               ))}
           </Row>
@@ -108,4 +128,4 @@ class Search extends Component {
     );
   }
 }
-export default connect(mapStateToProps)(Search);
+export default connect(mapStateToProps, mapDispatchToProps)(Search);

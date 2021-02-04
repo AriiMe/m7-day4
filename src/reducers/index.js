@@ -19,6 +19,27 @@ export default function (state = {}, action) {
                 ...state,
                 selected: action.payload,
             };
+        case "POPULATE_JOB_LIST":
+            return {
+                ...state,
+                jobList: action.payload,
+            };
+        //errors
+        case "SET_ERROR_CODE":
+            return {
+                ...state,
+                errCode: action.payload,
+            };
+        case "SET_ERROR_MESSAGE":
+            return {
+                ...state,
+                errMessage: action.payload,
+            };
+        case "TOGGLE_ERROR":
+            return {
+                ...state,
+                show: action.payload,
+            };
 
         default:
             return state;
